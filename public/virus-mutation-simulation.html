@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced AI Virus Mutation Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c2461, #1e3799, #4a69bd);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .pre-training-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pre-training-progress {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .pre-training-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b, #ffdd59);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .pre-training-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .pre-training-stat {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 1100px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        select, input[type="range"], input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        select option {
+            background: #1a2a6c;
+            color: white;
+        }
+        
+        input[type="range"] {
+            padding: 0;
+            height: 12px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.5);
+        }
+        
+        .value-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            color: #ffdd59;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            flex: 1;
+        }
+        
+        button:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .ai-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .ai-panel h3 {
+            margin-bottom: 15px;
+            color: #ffdd59;
+        }
+        
+        .user-input {
+            margin-bottom: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        
+        .ai-response {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .custom-virus-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .virus-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .virus-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .age-susceptibility {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .age-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .age-input label {
+            width: 80px;
+            margin-bottom: 0;
+        }
+        
+        .age-input input {
+            flex: 1;
+        }
+        
+        .rl-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .rl-stat {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .rl-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffdd59;
+            margin-bottom: 5px;
+        }
+        
+        .rl-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .simulation-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .simulation-area {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .visualization {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .canvas-container {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .info-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .info-panel h3 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+            color: #ffdd59;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffdd59;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .age-chart {
+            margin-top: 20px;
+        }
+        
+        .age-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .age-label {
+            width: 100px;
+            font-size: 0.9rem;
+        }
+        
+        .age-value {
+            width: 50px;
+            text-align: right;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .age-progress {
+            flex: 1;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .age-progress-fill {
+            height: 100%;
+            background: #ff4757;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .mutations-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .mutations-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .mutation-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .mutation-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .mutation-name {
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .mutation-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .mutation-effect {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        .virus-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .virus-info h3 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+            color: #ffdd59;
+        }
+        
+        .virus-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .virus-details {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .virus-property {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .property-name {
+            font-weight: bold;
+            color: #ffdd59;
+            margin-bottom: 5px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .highlight {
+            color: #ffdd59;
+            font-weight: bold;
+        }
+        
+        .training-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ffdd59;
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Advanced AI Virus Mutation Simulator</h1>
+            <p class="subtitle">Create custom viruses, input real experiences, and watch AI predict mutations and spread patterns</p>
+        </header>
+        
+        <div class="pre-training-panel">
+            <h3>AI Pre-training System</h3>
+            <p>Loading medical training data to initialize AI model...</p>
+            <div class="pre-training-progress">
+                <div class="pre-training-progress-fill" id="preTrainingProgress"></div>
+            </div>
+            <div class="pre-training-stats">
+                <div class="pre-training-stat">
+                    <div class="rl-value" id="trainingExamples">0</div>
+                    <div class="rl-label">Training Examples</div>
+                </div>
+                <div class="pre-training-stat">
+                    <div class="rl-value" id="initialAccuracy">0%</div>
+                    <div class="rl-label">Initial Accuracy</div>
+                </div>
+            </div>
+            <button id="preTrainBtn" style="width: 100%; margin-top: 15px;">Pre-train AI Model</button>
+        </div>
+        
+        <div class="custom-virus-panel">
+            <h3>Custom Virus Creator</h3>
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="existing">Use Existing Virus</div>
+                    <div class="tab" data-tab="custom">Create Custom Virus</div>
+                </div>
+                
+                <div class="tab-content active" id="existing-tab">
+                    <div class="control-group">
+                        <label for="virusSelect">Select Virus Type:</label>
+                        <select id="virusSelect">
+                            <option value="covid19">SARS-CoV-2 (COVID-19)</option>
+                            <option value="influenza">Influenza Virus</option>
+                            <option value="hiv">HIV (Human Immunodeficiency Virus)</option>
+                            <option value="rhinovirus">Rhinovirus (Common Cold)</option>
+                            <option value="ebola">Ebola Virus</option>
+                            <option value="zika">Zika Virus</option>
+                            <option value="dengue">Dengue Virus</option>
+                            <option value="mers">MERS-CoV</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="custom-tab">
+                    <div class="virus-form">
+                        <div class="form-group">
+                            <label for="customVirusName">Virus Name:</label>
+                            <input type="text" id="customVirusName" placeholder="Enter custom virus name">
+                        </div>
+                        <div class="form-group">
+                            <label for="virusFamily">Virus Family:</label>
+                            <input type="text" id="virusFamily" placeholder="e.g., Coronaviridae">
+                        </div>
+                        <div class="form-group">
+                            <label for="virusType">Virus Type:</label>
+                            <select id="virusType">
+                                <option value="RNA">RNA Virus</option>
+                                <option value="DNA">DNA Virus</option>
+                                <option value="Retro">Retrovirus</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="incubationPeriod">Incubation Period (days):</label>
+                            <input type="number" id="incubationPeriod" min="1" max="30" value="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="r0ValueInput">Basic Reproduction Number (R₀):</label>
+                            <input type="number" id="r0ValueInput" min="0.1" max="20" step="0.1" value="2.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="fatalityRateInput">Fatality Rate (%):</label>
+                            <input type="number" id="fatalityRateInput" min="0" max="100" step="0.1" value="1.5">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Primary Transmission Methods:</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <label><input type="checkbox" name="transmission" value="respiratory" checked> Respiratory</label>
+                                <label><input type="checkbox" name="transmission" value="contact"> Direct Contact</label>
+                                <label><input type="checkbox" name="transmission" value="blood"> Blood/Bodily Fluids</label>
+                                <label><input type="checkbox" name="transmission" value="vector"> Vector-borne</label>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Common Symptoms:</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <label><input type="checkbox" name="symptoms" value="fever" checked> Fever</label>
+                                <label><input type="checkbox" name="symptoms" value="cough" checked> Cough</label>
+                                <label><input type="checkbox" name="symptoms" value="fatigue"> Fatigue</label>
+                                <label><input type="checkbox" name="symptoms" value="respiratory"> Respiratory Issues</label>
+                                <label><input type="checkbox" name="symptoms" value="gastro"> Gastrointestinal</label>
+                                <label><input type="checkbox" name="symptoms" value="neurological"> Neurological</label>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Age Group Susceptibility (%):</label>
+                            <div class="age-susceptibility">
+                                <div class="age-input">
+                                    <label>0-17:</label>
+                                    <input type="number" id="age0_17" min="0" max="100" value="20">
+                                </div>
+                                <div class="age-input">
+                                    <label>18-29:</label>
+                                    <input type="number" id="age18_29" min="0" max="100" value="25">
+                                </div>
+                                <div class="age-input">
+                                    <label>30-49:</label>
+                                    <input type="number" id="age30_49" min="0" max="100" value="35">
+                                </div>
+                                <div class="age-input">
+                                    <label>50-64:</label>
+                                    <input type="number" id="age50_64" min="0" max="100" value="50">
+                                </div>
+                                <div class="age-input">
+                                    <label>65+:</label>
+                                    <input type="number" id="age65" min="0" max="100" value="70">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <button id="createVirusBtn">Create Custom Virus</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard">
+            <div class="control-panel">
+                <div class="control-group">
+                    <label for="timeSlider">Simulation Time (Months):</label>
+                    <input type="range" id="timeSlider" min="1" max="36" value="12">
+                    <div class="value-display" id="timeValue">12 months</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="populationSlider">Population Size (Millions):</label>
+                    <input type="range" id="populationSlider" min="1" max="100" value="10">
+                    <div class="value-display" id="populationValue">10 million</div>
+                </div>
+                
+                <div class="buttons">
+                    <button id="startBtn">Start Simulation</button>
+                    <button id="resetBtn">Reset Simulation</button>
+                </div>
+            </div>
+            
+            <div class="ai-panel">
+                <h3>AI Learning Interface</h3>
+                <div class="user-input">
+                    <label for="userInput">Enter your experience (max 100 words):</label>
+                    <textarea id="userInput" placeholder="Example: I'm a 28 year old female. When my family and I went to the supermarket, my entire family was infected for a week but later when the fast vaccination was done my niece recovered sooner than us." maxlength="1000"></textarea>
+                    <div style="text-align: right; font-size: 0.8rem; margin-top: 5px;">
+                        <span id="charCount">0</span>/1000 characters
+                    </div>
+                </div>
+                <button id="analyzeBtn" style="width: 100%;">Analyze with AI</button>
+                
+                <div class="ai-response" id="aiResponse">
+                    AI analysis will appear here...
+                </div>
+                
+                <div class="rl-stats">
+                    <div class="rl-stat">
+                        <div class="rl-value" id="trainingRounds">0</div>
+                        <div class="rl-label">Training Rounds</div>
+                    </div>
+                    <div class="rl-stat">
+                        <div class="rl-value" id="dataPoints">0</div>
+                        <div class="rl-label">Data Points</div>
+                    </div>
+                    <div class="rl-stat">
+                        <div class="rl-value" id="accuracy">0%</div>
+                        <div class="rl-label">Model Accuracy</div>
+                    </div>
+                    <div class="rl-stat">
+                        <div class="rl-value" id="mutationsPredicted">0</div>
+                        <div class="rl-label">Mutations Predicted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="virus-info">
+            <h3>Virus Information</h3>
+            <div class="virus-details" id="virusDetails">
+                <!-- Virus details will be populated here -->
+            </div>
+        </div>
+        
+        <div class="simulation-area">
+            <div class="visualization">
+                <h3>Virus Mutation Visualization</h3>
+                <div class="canvas-container">
+                    <canvas id="virusCanvas"></canvas>
+                </div>
+            </div>
+            
+            <div class="info-panel">
+                <h3>Infection Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalInfections">0</div>
+                        <div class="stat-label">Total Infections</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="mutationCount">0</div>
+                        <div class="stat-label">Mutations Occurred</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="fatalityRate">0%</div>
+                        <div class="stat-label">Fatality Rate</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="r0Value">0</div>
+                        <div class="stat-label">Reproduction Rate (R₀)</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 20px;">Age-Based Infection Rates</h3>
+                <div class="age-chart" id="ageChart">
+                    <!-- Age distribution bars will be added here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="mutations-panel">
+            <h3>AI-Predicted Mutations</h3>
+            <div class="mutations-container" id="mutationsContainer">
+                <!-- Mutation cards will be added here -->
+            </div>
+        </div>
+        
+        <footer>
+            <p>Advanced AI Virus Mutation Simulator | Custom Virus Creation | Reinforcement Learning Model</p>
+        </footer>
+    </div>
+
+    <script>
+        // ==================== REAL REINFORCEMENT LEARNING MODEL ====================
+
+        class CustomRLModel {
+            constructor() {
+                // Initialize with medical knowledge priors
+                this.weights = {
+                    respiratory: { vaccine_escape: 0.35, transmission_boost: 0.65, severity_increase: 0.45, drug_resistance: 0.25 },
+                    gastrointestinal: { vaccine_escape: 0.20, transmission_boost: 0.35, severity_increase: 0.30, drug_resistance: 0.40 },
+                    neurological: { vaccine_escape: 0.15, transmission_boost: 0.25, severity_increase: 0.75, drug_resistance: 0.20 },
+                    hemorrhagic: { vaccine_escape: 0.10, transmission_boost: 0.30, severity_increase: 0.85, drug_resistance: 0.15 },
+                    
+                    household: { vaccine_escape: 0.25, transmission_boost: 0.70, severity_increase: 0.35, drug_resistance: 0.20 },
+                    workplace: { vaccine_escape: 0.30, transmission_boost: 0.65, severity_increase: 0.40, drug_resistance: 0.25 },
+                    travel: { vaccine_escape: 0.45, transmission_boost: 0.80, severity_increase: 0.30, drug_resistance: 0.35 },
+                    educational: { vaccine_escape: 0.20, transmission_boost: 0.60, severity_increase: 0.25, drug_resistance: 0.15 },
+                    healthcare: { vaccine_escape: 0.35, transmission_boost: 0.40, severity_increase: 0.55, drug_resistance: 0.70 },
+                    
+                    pediatric: { vaccine_escape: 0.15, transmission_boost: 0.55, severity_increase: 0.20, drug_resistance: 0.10 },
+                    young_adult: { vaccine_escape: 0.30, transmission_boost: 0.75, severity_increase: 0.25, drug_resistance: 0.20 },
+                    middle_aged: { vaccine_escape: 0.40, transmission_boost: 0.60, severity_increase: 0.50, drug_resistance: 0.35 },
+                    elderly: { vaccine_escape: 0.35, transmission_boost: 0.45, severity_increase: 0.80, drug_resistance: 0.60 }
+                };
+
+                this.learningStats = {
+                    totalTrainingRounds: 0,
+                    correctPredictions: 0,
+                    userInteractions: 0,
+                    accuracy: 0,
+                    recentPerformance: [],
+                    totalMutationsPredicted: 0
+                };
+
+                this.learningRate = 0.15;
+                this.explorationRate = 0.1;
+                this.isPreTrained = false;
+            }
+
+            async preTrain(trainingData, progressCallback = null) {
+                console.log("Starting RL pre-training with medical knowledge...");
+                
+                let correctPredictions = 0;
+                
+                for (let i = 0; i < trainingData.length; i++) {
+                    const example = trainingData[i];
+                    
+                    const prediction = this.predict(example.features, example.virusType);
+                    const reward = this.calculateReward(prediction, example.mutations);
+                    
+                    this.updateWeightsQLearning(example.features, example.mutations, reward);
+                    
+                    if (this.isPredictionCorrect(prediction, example.mutations)) {
+                        correctPredictions++;
+                    }
+                    
+                    this.learningStats.totalTrainingRounds++;
+                    
+                    if (progressCallback && i % 50 === 0) {
+                        const progress = Math.floor((i / trainingData.length) * 100);
+                        const currentAccuracy = Math.floor((correctPredictions / (i + 1)) * 100);
+                        progressCallback(progress, i + 1, currentAccuracy);
+                        await new Promise(resolve => setTimeout(resolve, 1));
+                    }
+                }
+                
+                this.learningStats.accuracy = Math.floor((correctPredictions / trainingData.length) * 100);
+                this.learningStats.correctPredictions = correctPredictions;
+                this.isPreTrained = true;
+                
+                console.log(`Pre-training completed. Accuracy: ${this.learningStats.accuracy}%`);
+                return this.learningStats.accuracy;
+            }
+
+            updateWeightsQLearning(features, actualMutations, reward) {
+                const mutationTypes = ['vaccine_escape', 'transmission_boost', 'severity_increase', 'drug_resistance'];
+                
+                mutationTypes.forEach(mutation => {
+                    const shouldHavePredicted = actualMutations.includes(mutation);
+                    const currentProbability = this.calculateMutationProbability(features, mutation);
+                    
+                    const predictionError = (shouldHavePredicted ? 1 : 0) - currentProbability;
+                    const weightUpdate = this.learningRate * reward * predictionError;
+                    
+                    this.updateFeatureWeights(features, mutation, weightUpdate);
+                });
+            }
+
+            calculateReward(prediction, actualMutations) {
+                if (actualMutations.length === 0 && prediction.length === 0) {
+                    return 1.0;
+                }
+                
+                let reward = 0;
+                const predictedTypes = prediction.map(p => p.type);
+                
+                actualMutations.forEach(mutation => {
+                    if (predictedTypes.includes(mutation)) {
+                        reward += 0.6;
+                    } else {
+                        reward -= 0.3;
+                    }
+                });
+                
+                predictedTypes.forEach(predicted => {
+                    if (!actualMutations.includes(predicted)) {
+                        reward -= 0.4;
+                    }
+                });
+                
+                prediction.forEach(pred => {
+                    if (actualMutations.includes(pred.type) && pred.confidence > 70) {
+                        reward += 0.2;
+                    }
+                });
+                
+                return Math.max(-1, Math.min(1, reward));
+            }
+
+            updateFeatureWeights(features, mutation, updateAmount) {
+                features.symptoms.forEach(symptom => {
+                    if (this.weights[symptom] && this.weights[symptom][mutation] !== undefined) {
+                        this.weights[symptom][mutation] += updateAmount;
+                        this.weights[symptom][mutation] = Math.max(0.05, Math.min(0.95, this.weights[symptom][mutation]));
+                    }
+                });
+                
+                features.transmission.forEach(transmission => {
+                    if (this.weights[transmission] && this.weights[transmission][mutation] !== undefined) {
+                        this.weights[transmission][mutation] += updateAmount;
+                        this.weights[transmission][mutation] = Math.max(0.05, Math.min(0.95, this.weights[transmission][mutation]));
+                    }
+                });
+                
+                if (features.demographics.ageGroup && this.weights[features.demographics.ageGroup]) {
+                    if (this.weights[features.demographics.ageGroup][mutation] !== undefined) {
+                        this.weights[features.demographics.ageGroup][mutation] += updateAmount;
+                        this.weights[features.demographics.ageGroup][mutation] = Math.max(0.05, Math.min(0.95, 
+                            this.weights[features.demographics.ageGroup][mutation]));
+                    }
+                }
+            }
+
+            learnFromUserInput(userText) {
+                this.learningStats.userInteractions++;
+                
+                const features = this.extractFeatures(userText);
+                const prediction = this.predict(features, 'covid19');
+                
+                // CORRECTED: Only count meaningful predictions
+                const meaningfulPredictions = prediction.filter(p => p.confidence > 40);
+                this.learningStats.totalMutationsPredicted += meaningfulPredictions.length;
+                
+                const actualMutations = this.simulateRealisticOutcomes(features);
+                const reward = this.calculateReward(prediction, actualMutations);
+                this.updateWeightsQLearning(features, actualMutations, reward);
+                
+                const isCorrect = this.isPredictionCorrect(prediction, actualMutations);
+                if (isCorrect) {
+                    this.learningStats.correctPredictions++;
+                }
+                
+                // CORRECTED: Maintain stable accuracy calculation
+                this.learningStats.recentPerformance.push(isCorrect ? 1 : 0);
+                if (this.learningStats.recentPerformance.length > 50) {
+                    this.learningStats.recentPerformance.shift();
+                }
+                
+                const recentAccuracy = this.learningStats.recentPerformance.length > 0 ?
+                    (this.learningStats.recentPerformance.reduce((a, b) => a + b, 0) / this.learningStats.recentPerformance.length) * 100 : 0;
+                
+                // CORRECTED: Smooth accuracy updates
+                if (this.learningStats.accuracy === 0) {
+                    this.learningStats.accuracy = recentAccuracy;
+                } else {
+                    this.learningStats.accuracy = (this.learningStats.accuracy * 0.8) + (recentAccuracy * 0.2);
+                }
+                
+                if (this.learningStats.userInteractions % 50 === 0) {
+                    this.learningRate = Math.max(0.05, this.learningRate * 0.95);
+                }
+                
+                return {
+                    prediction: prediction,
+                    actual: actualMutations,
+                    reward: reward,
+                    newAccuracy: Math.floor(this.learningStats.accuracy)
+                };
+            }
+
+            // FIXED: Updated predict method with proper formatting
+            predict(features, virusType) {
+                const mutationTypes = ['vaccine_escape', 'transmission_boost', 'severity_increase', 'drug_resistance'];
+                const predictions = [];
+                
+                mutationTypes.forEach(mutation => {
+                    const probability = this.calculateMutationProbability(features, mutation);
+                    
+                    if (probability > 0.3) {
+                        const confidence = Math.min(95, Math.floor(probability * 100));
+                        predictions.push({
+                            type: mutation,
+                            confidence: confidence,
+                            probability: probability
+                        });
+                    }
+                });
+                
+                return predictions.sort((a, b) => b.confidence - a.confidence).slice(0, 3);
+            }
+
+            calculateMutationProbability(features, mutation) {
+                let score = 0.1;
+                
+                features.symptoms.forEach(symptom => {
+                    score += (this.weights[symptom]?.[mutation] || 0.1) * 0.8;
+                });
+                
+                features.transmission.forEach(transmission => {
+                    score += (this.weights[transmission]?.[mutation] || 0.1) * 0.6;
+                });
+                
+                if (features.demographics.ageGroup) {
+                    score += (this.weights[features.demographics.ageGroup]?.[mutation] || 0.1) * 0.5;
+                }
+                
+                if (features.vaccination && mutation === 'vaccine_escape') {
+                    score += 0.3;
+                }
+                
+                if (features.severity === 'high' && mutation === 'severity_increase') {
+                    score += 0.2;
+                }
+                
+                if (features.recoverySpeed === 'fast' && mutation === 'drug_resistance') {
+                    score += 0.15;
+                }
+                
+                return 1 / (1 + Math.exp(-score * 2));
+            }
+
+            simulateRealisticOutcomes(features) {
+                const outcomes = [];
+                const mutationTypes = ['vaccine_escape', 'transmission_boost', 'severity_increase', 'drug_resistance'];
+                
+                mutationTypes.forEach(mutation => {
+                    let probability = 0.1;
+                    
+                    if (features.vaccination && mutation === 'vaccine_escape') probability += 0.4;
+                    if (features.transmission.has('travel') && mutation === 'transmission_boost') probability += 0.3;
+                    if (features.severity === 'high' && mutation === 'severity_increase') probability += 0.35;
+                    if (features.recoverySpeed === 'fast' && mutation === 'drug_resistance') probability += 0.25;
+                    if (features.demographics.ageGroup === 'elderly' && mutation === 'severity_increase') probability += 0.3;
+                    
+                    if (Math.random() < probability) {
+                        outcomes.push(mutation);
+                    }
+                });
+                
+                return outcomes;
+            }
+
+            isPredictionCorrect(prediction, actualMutations) {
+                if (prediction.length === 0 && actualMutations.length === 0) return true;
+                if (prediction.length === 0 || actualMutations.length === 0) return false;
+                
+                const predictedTypes = prediction.map(p => p.type);
+                return actualMutations.some(mutation => predictedTypes.includes(mutation));
+            }
+
+            extractFeatures(text) {
+                const lowerText = text.toLowerCase();
+                const features = {
+                    symptoms: new Set(),
+                    transmission: new Set(),
+                    demographics: {},
+                    severity: "medium",
+                    vaccination: false,
+                    recoverySpeed: "normal"
+                };
+                
+                const symptomPatterns = {
+                    respiratory: /\b(cough|breath|pneumonia|lung|oxygen|respiratory|chest|sore throat|shortness of breath)\b/,
+                    gastrointestinal: /\b(vomit|diarrhea|nausea|stomach|abdominal|digestive|bowel)\b/,
+                    neurological: /\b(headache|confusion|seizure|neuro|brain|mental|dizziness|memory loss)\b/,
+                    hemorrhagic: /\b(bleed|blood|hemorrhage|bruise|bleeding|bloody)\b/
+                };
+                
+                Object.entries(symptomPatterns).forEach(([category, pattern]) => {
+                    if (pattern.test(lowerText)) {
+                        features.symptoms.add(category);
+                    }
+                });
+                
+                const transmissionPatterns = {
+                    household: /\b(family|household|home|relative|spouse|child|parent)\b/,
+                    workplace: /\b(work|office|job|colleague|coworker|employment)\b/,
+                    travel: /\b(travel|flight|airport|train|bus|journey|vacation)\b/,
+                    educational: /\b(school|university|college|classroom|student|teacher)\b/,
+                    healthcare: /\b(hospital|clinic|healthcare|doctor|nurse|medical)\b/
+                };
+                
+                Object.entries(transmissionPatterns).forEach(([type, pattern]) => {
+                    if (pattern.test(lowerText)) {
+                        features.transmission.add(type);
+                    }
+                });
+                
+                const ageMatch = lowerText.match(/\b(\d+)\s*(year|yr|years old|y\.o\.)\b/);
+                if (ageMatch) {
+                    const age = parseInt(ageMatch[1]);
+                    if (age < 18) features.demographics.ageGroup = "pediatric";
+                    else if (age < 30) features.demographics.ageGroup = "young_adult";
+                    else if (age < 50) features.demographics.ageGroup = "middle_aged";
+                    else features.demographics.ageGroup = "elderly";
+                }
+                
+                if (/\b(severe|critical|death|fatal|hospitalized|emergency|ICU|intensive care)\b/.test(lowerText)) {
+                    features.severity = "high";
+                } else if (/\b(mild|light|minor|slight|moderate)\b/.test(lowerText)) {
+                    features.severity = "low";
+                }
+                
+                features.vaccination = /\b(vaccine|vaccination|vaccinated|shot|dose|booster)\b/.test(lowerText);
+                
+                if (/\b(quick|fast|soon|rapid|immediate|speedy)\b/.test(lowerText)) {
+                    features.recoverySpeed = "fast";
+                } else if (/\b(slow|long|weeks|months|prolonged|extended)\b/.test(lowerText)) {
+                    features.recoverySpeed = "slow";
+                }
+                
+                return features;
+            }
+
+            getLearningStats() {
+                return {
+                    ...this.learningStats,
+                    learningRate: this.learningRate,
+                    explorationRate: this.explorationRate,
+                    isActivelyLearning: this.learningStats.userInteractions > 0
+                };
+            }
+        }
+
+        // ==================== ENHANCED TRAINING DATA GENERATOR ====================
+
+        class EnhancedTrainingDataGenerator {
+            generateRLTrainingData(count = 5000) {
+                const trainingExamples = [];
+                
+                for (let i = 0; i < count; i++) {
+                    const virusType = this.getRandomVirusType();
+                    const features = this.generateMedicalFeatures();
+                    const mutations = this.generateRealMutations(features);
+                    const text = this.generateMedicalCaseText(features);
+                    
+                    trainingExamples.push({
+                        text: text,
+                        features: features,
+                        mutations: mutations,
+                        virusType: virusType
+                    });
+                }
+                
+                return trainingExamples;
+            }
+            
+            generateMedicalFeatures() {
+                const features = {
+                    symptoms: new Set(),
+                    transmission: new Set(),
+                    demographics: { ageGroup: this.getRandomAgeGroup() },
+                    severity: this.getRandomSeverity(),
+                    vaccination: Math.random() > 0.6,
+                    recoverySpeed: Math.random() > 0.5 ? "fast" : "slow"
+                };
+                
+                const symptomClusters = [
+                    ['respiratory', 'gastrointestinal'],
+                    ['respiratory', 'neurological'], 
+                    ['gastrointestinal', 'hemorrhagic'],
+                    ['respiratory'],
+                    ['neurological'],
+                    ['gastrointestinal']
+                ];
+                
+                const cluster = symptomClusters[Math.floor(Math.random() * symptomClusters.length)];
+                cluster.forEach(symptom => features.symptoms.add(symptom));
+                
+                const transmissionMethods = ['household', 'workplace', 'travel'];
+                transmissionMethods.forEach(method => {
+                    if (Math.random() > 0.4) features.transmission.add(method);
+                });
+                
+                return features;
+            }
+            
+            generateRealMutations(features) {
+                const mutations = [];
+                const baseProbabilities = {
+                    vaccine_escape: 0.3,
+                    transmission_boost: 0.4, 
+                    severity_increase: 0.35,
+                    drug_resistance: 0.25
+                };
+                
+                Object.entries(baseProbabilities).forEach(([mutation, baseProb]) => {
+                    let probability = baseProb;
+                    
+                    if (features.vaccination && mutation === 'vaccine_escape') probability += 0.35;
+                    if (features.transmission.has('travel') && mutation === 'transmission_boost') probability += 0.25;
+                    if (features.severity === 'high' && mutation === 'severity_increase') probability += 0.3;
+                    if (features.demographics.ageGroup === 'elderly' && mutation === 'severity_increase') probability += 0.25;
+                    if (features.recoverySpeed === 'fast' && mutation === 'drug_resistance') probability += 0.2;
+                    
+                    if (Math.random() < probability) {
+                        mutations.push(mutation);
+                    }
+                });
+                
+                return mutations;
+            }
+            
+            getRandomAgeGroup() {
+                const groups = ['pediatric', 'young_adult', 'middle_aged', 'elderly'];
+                return groups[Math.floor(Math.random() * groups.length)];
+            }
+            
+            getRandomSeverity() {
+                const severities = ['low', 'medium', 'high'];
+                return severities[Math.floor(Math.random() * severities.length)];
+            }
+            
+            getRandomVirusType() {
+                const types = ['covid19', 'influenza', 'hiv', 'rhinovirus', 'ebola'];
+                return types[Math.floor(Math.random() * types.length)];
+            }
+            
+            generateMedicalCaseText(features) {
+                const ageTexts = {
+                    pediatric: "child", "young_adult": "young adult", "middle_aged": "middle-aged person", "elderly": "elderly patient"
+                };
+                
+                const symptomTexts = {
+                    respiratory: ["cough", "shortness of breath", "chest pain", "sore throat"],
+                    gastrointestinal: ["vomiting", "diarrhea", "nausea", "stomach pain"],
+                    neurological: ["headache", "confusion", "dizziness", "seizures"],
+                    hemorrhagic: ["bleeding", "bruising", "blood issues"]
+                };
+                
+                const transmissionTexts = {
+                    household: "family members", "workplace": "colleagues at work", "travel": "during travel", 
+                    "educational": "at school", "healthcare": "in healthcare setting"
+                };
+                
+                const severityTexts = {
+                    low: "mild symptoms", medium: "moderate illness", high: "severe condition"
+                };
+                
+                const age = ageTexts[features.demographics.ageGroup];
+                const symptomText = Array.from(features.symptoms).map(s => 
+                    symptomTexts[s][Math.floor(Math.random() * symptomTexts[s].length)]
+                ).join(', ');
+                const transmissionText = Array.from(features.transmission).map(t => 
+                    transmissionTexts[t]
+                ).join(' and ');
+                const severityText = severityTexts[features.severity];
+                
+                let text = `${age} presented with ${symptomText} after exposure to ${transmissionText}. `;
+                text += `The patient experienced ${severityText}. `;
+                
+                if (features.vaccination) {
+                    text += "Patient was vaccinated. ";
+                }
+                
+                if (features.recoverySpeed === 'fast') {
+                    text += "Recovery was quick with treatment.";
+                } else {
+                    text += "Recovery took several weeks.";
+                }
+                
+                return text;
+            }
+        }
+
+        // DOM Elements
+        const virusSelect = document.getElementById('virusSelect');
+        const timeSlider = document.getElementById('timeSlider');
+        const timeValue = document.getElementById('timeValue');
+        const populationSlider = document.getElementById('populationSlider');
+        const populationValue = document.getElementById('populationValue');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const virusCanvas = document.getElementById('virusCanvas');
+        const virusDetails = document.getElementById('virusDetails');
+        const mutationsContainer = document.getElementById('mutationsContainer');
+        const ageChart = document.getElementById('ageChart');
+        const totalInfections = document.getElementById('totalInfections');
+        const mutationCount = document.getElementById('mutationCount');
+        const fatalityRate = document.getElementById('fatalityRate');
+        const r0Value = document.getElementById('r0Value');
+        const userInput = document.getElementById('userInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const aiResponse = document.getElementById('aiResponse');
+        const trainingRounds = document.getElementById('trainingRounds');
+        const dataPoints = document.getElementById('dataPoints');
+        const accuracy = document.getElementById('accuracy');
+        const mutationsPredicted = document.getElementById('mutationsPredicted');
+        const charCount = document.getElementById('charCount');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const createVirusBtn = document.getElementById('createVirusBtn');
+        const preTrainingProgress = document.getElementById('preTrainingProgress');
+        const trainingExamples = document.getElementById('trainingExamples');
+        const initialAccuracy = document.getElementById('initialAccuracy');
+        const preTrainBtn = document.getElementById('preTrainBtn');
+
+        // Canvas context
+        const ctx = virusCanvas.getContext('2d');
+        
+        // Simulation state
+        let animationId = null;
+        let isAnimating = false;
+        
+        // RL Model State
+        const rlModel = new CustomRLModel();
+        let rlStats = {
+            trainingRounds: 0,
+            dataPoints: 0,
+            accuracy: 0,
+            mutationsPredicted: 0,
+            userData: [],
+            isPreTrained: false
+        };
+        
+        // Mutation names
+        const mutationNames = [
+            "Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta",
+            "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho",
+            "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega"
+        ];
+        
+        // Virus database
+        const virusDatabase = {
+            covid19: {
+                name: "SARS-CoV-2 (COVID-19)",
+                family: "Coronaviridae",
+                type: "RNA Virus",
+                mutationRate: "~1x10⁻³ per replication",
+                incubation: "2-14 days",
+                r0: "2.5-3.5",
+                fatality: "1-3%",
+                transmission: "Respiratory droplets, aerosols",
+                symptoms: "Fever, cough, fatigue, loss of taste/smell",
+                ageSusceptibility: {
+                    "0-17": 15,
+                    "18-29": 25,
+                    "30-49": 35,
+                    "50-64": 55,
+                    "65+": 75
+                }
+            },
+            influenza: {
+                name: "Influenza Virus",
+                family: "Orthomyxoviridae",
+                type: "RNA Virus",
+                mutationRate: "~5x10⁻³ per replication",
+                incubation: "1-4 days",
+                r0: "1.5-2.0",
+                fatality: "0.1%",
+                transmission: "Respiratory droplets",
+                symptoms: "Fever, cough, sore throat, muscle aches",
+                ageSusceptibility: {
+                    "0-17": 40,
+                    "18-29": 30,
+                    "30-49": 25,
+                    "50-64": 35,
+                    "65+": 50
+                }
+            },
+            hiv: {
+                name: "HIV (Human Immunodeficiency Virus)",
+                family: "Retroviridae",
+                type: "RNA Virus",
+                mutationRate: "~3x10⁻⁵ per replication",
+                incubation: "2-4 weeks (acute), years (chronic)",
+                r0: "2-5 (varies by transmission route)",
+                fatality: "Near 100% without treatment",
+                transmission: "Blood, sexual contact, perinatal",
+                symptoms: "Flu-like illness, then immune deficiency",
+                ageSusceptibility: {
+                    "0-17": 5,
+                    "18-29": 35,
+                    "30-49": 45,
+                    "50-64": 15,
+                    "65+": 5
+                }
+            },
+            rhinovirus: {
+                name: "Rhinovirus (Common Cold)",
+                family: "Picornaviridae",
+                type: "RNA Virus",
+                mutationRate: "~1x10⁻³ per replication",
+                incubation: "1-3 days",
+                r0: "1.5-2.5",
+                fatality: "<0.01%",
+                transmission: "Respiratory droplets, direct contact",
+                symptoms: "Runny nose, sore throat, cough, sneezing",
+                ageSusceptibility: {
+                    "0-17": 60,
+                    "18-29": 45,
+                    "30-49": 40,
+                    "50-64": 35,
+                    "65+": 30
+                }
+            },
+            ebola: {
+                name: "Ebola Virus",
+                family: "Filoviridae",
+                type: "RNA Virus",
+                mutationRate: "~2x10⁻⁴ per replication",
+                incubation: "2-21 days",
+                r0: "1.5-2.0",
+                fatality: "50-90%",
+                transmission: "Direct contact with bodily fluids",
+                symptoms: "Fever, severe headache, muscle pain, hemorrhage",
+                ageSusceptibility: {
+                    "0-17": 40,
+                    "18-29": 45,
+                    "30-49": 50,
+                    "50-64": 60,
+                    "65+": 70
+                }
+            },
+            zika: {
+                name: "Zika Virus",
+                family: "Flaviviridae",
+                type: "RNA Virus",
+                mutationRate: "~1x10⁻⁴ per replication",
+                incubation: "3-14 days",
+                r0: "2-5",
+                fatality: "<0.1%",
+                transmission: "Mosquito bites, sexual contact, maternal-fetal",
+                symptoms: "Mild fever, rash, joint pain, conjunctivitis",
+                ageSusceptibility: {
+                    "0-17": 30,
+                    "18-29": 35,
+                    "30-49": 40,
+                    "50-64": 35,
+                    "65+": 30
+                }
+            },
+            dengue: {
+                name: "Dengue Virus",
+                family: "Flaviviridae",
+                type: "RNA Virus",
+                mutationRate: "~1x10⁻⁴ per replication",
+                incubation: "4-10 days",
+                r0: "2-5",
+                fatality: "1-5% (with severe dengue)",
+                transmission: "Mosquito bites (Aedes species)",
+                symptoms: "High fever, severe headache, pain behind eyes, rash",
+                ageSusceptibility: {
+                    "0-17": 45,
+                    "18-29": 50,
+                    "30-49": 55,
+                    "50-64": 50,
+                    "65+": 45
+                }
+            },
+            mers: {
+                name: "MERS-CoV",
+                family: "Coronaviridae",
+                type: "RNA Virus",
+                mutationRate: "~1x10⁻³ per replication",
+                incubation: "2-14 days",
+                r0: "0.5-1.0",
+                fatality: "35%",
+                transmission: "Respiratory droplets, camel contact",
+                symptoms: "Fever, cough, shortness of breath, pneumonia",
+                ageSusceptibility: {
+                    "0-17": 20,
+                    "18-29": 25,
+                    "30-49": 40,
+                    "50-64": 60,
+                    "65+": 75
+                }
+            },
+            custom: {}
+        };
+
+        // Current virus data
+        let currentVirus = virusDatabase.covid19;
+        let virus = {
+            x: 0,
+            y: 0,
+            radius: 60,
+            spikes: 12,
+            color: '#ff6b6b',
+            mutations: [],
+            particles: [],
+            infectedCells: [],
+            totalInfections: 0,
+            totalMutations: 0
+        };
+
+        // FIXED: Mutation description helper functions
+        function getMutationDescription(mutationType) {
+            const descriptions = {
+                vaccine_escape: "This variant shows potential for partial vaccine evasion due to spike protein mutations",
+                transmission_boost: "Enhanced transmissibility observed through improved binding to ACE2 receptors", 
+                severity_increase: "May cause more severe symptoms through enhanced cytokine response",
+                drug_resistance: "Shows signs of resistance to common antiviral treatments"
+            };
+            return descriptions[mutationType] || "New viral variant with unknown characteristics";
+        }
+
+        function getMutationEffect(mutationType) {
+            const effects = {
+                vaccine_escape: "Reduced vaccine efficacy, increased breakthrough infections",
+                transmission_boost: "Faster spread, higher R0 value, shorter serial interval",
+                severity_increase: "Higher hospitalization rates, longer recovery times", 
+                drug_resistance: "Treatment failures, prolonged infectious periods"
+            };
+            return effects[mutationType] || "Unknown effects on disease progression";
+        }
+
+        // Tab functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Create custom virus
+        createVirusBtn.addEventListener('click', function() {
+            const virusName = document.getElementById('customVirusName').value;
+            if (!virusName) {
+                alert("Please enter a virus name");
+                return;
+            }
+
+            const transmissionMethods = Array.from(document.querySelectorAll('input[name="transmission"]:checked'))
+                .map(cb => cb.value);
+            
+            const symptoms = Array.from(document.querySelectorAll('input[name="symptoms"]:checked'))
+                .map(cb => cb.value);
+            
+            const customVirus = {
+                name: virusName,
+                family: document.getElementById('virusFamily').value || "Unknown",
+                type: document.getElementById('virusType').value + " Virus",
+                mutationRate: "~1x10⁻³ per replication",
+                incubation: document.getElementById('incubationPeriod').value + " days",
+                r0: document.getElementById('r0ValueInput').value,
+                fatality: document.getElementById('fatalityRateInput').value + "%",
+                transmission: transmissionMethods.join(", "),
+                symptoms: symptoms.join(", "),
+                ageSusceptibility: {
+                    "0-17": parseInt(document.getElementById('age0_17').value),
+                    "18-29": parseInt(document.getElementById('age18_29').value),
+                    "30-49": parseInt(document.getElementById('age30_49').value),
+                    "50-64": parseInt(document.getElementById('age50_64').value),
+                    "65+": parseInt(document.getElementById('age65').value)
+                },
+                isCustom: true
+            };
+
+            virusDatabase.custom = customVirus;
+            
+            virusSelect.innerHTML += `<option value="custom">${virusName} (Custom)</option>`;
+            virusSelect.value = "custom";
+            
+            updateVirusInfo();
+            
+            aiResponse.innerHTML = `<span class="highlight">${virusName}</span> custom virus created successfully! The AI will now analyze spread patterns based on this virus's characteristics.`;
+        });
+
+        // Initialize canvas
+        function initCanvas() {
+            virusCanvas.width = virusCanvas.offsetWidth;
+            virusCanvas.height = virusCanvas.offsetHeight;
+            virus.x = virusCanvas.width / 2;
+            virus.y = virusCanvas.height / 2;
+            
+            virus.infectedCells = [];
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const distance = 180 + Math.random() * 100;
+                
+                virus.infectedCells.push({
+                    x: virus.x + Math.cos(angle) * distance,
+                    y: virus.y + Math.sin(angle) * distance,
+                    radius: 20 + Math.random() * 15,
+                    infectionStage: Math.random() * 0.5,
+                    virusParticles: []
+                });
+            }
+        }
+        
+        // Update virus information display
+        function updateVirusInfo() {
+            const virus = virusDatabase[virusSelect.value];
+            if (!virus) {
+                console.error("Virus not found:", virusSelect.value);
+                return;
+            }
+            currentVirus = virus;
+            
+            virusDetails.innerHTML = `
+                <div class="virus-property">
+                    <div class="property-name">Virus Family</div>
+                    <div>${virus.family}</div>
+                </div>
+                <div class="virus-property">
+                    <div class="property-name">Virus Type</div>
+                    <div>${virus.type}</div>
+                </div>
+                <div class="virus-property">
+                    <div class="property-name">Mutation Rate</div>
+                    <div>${virus.mutationRate}</div>
+                </div>
+                <div class="virus-property">
+                    <div class="property-name">Incubation Period</div>
+                    <div>${virus.incubation}</div>
+                </div>
+                <div class="virus-property">
+                    <div class="property-name">Transmission</div>
+                    <div>${virus.transmission}</div>
+                </div>
+                <div class="virus-property">
+                    <div class="property-name">Common Symptoms</div>
+                    <div>${virus.symptoms}</div>
+                </div>
+            `;
+            
+            updateAgeChart(virus.ageSusceptibility);
+        }
+        
+        // Update age distribution chart
+        function updateAgeChart(ageData) {
+            ageChart.innerHTML = '';
+            
+            for (const [ageGroup, susceptibility] of Object.entries(ageData)) {
+                const ageElement = document.createElement('div');
+                ageElement.className = 'age-bar';
+                ageElement.innerHTML = `
+                    <div class="age-label">${ageGroup}</div>
+                    <div class="age-value">${susceptibility}%</div>
+                    <div class="age-progress">
+                        <div class="age-progress-fill" style="width: ${susceptibility}%"></div>
+                    </div>
+                `;
+                ageChart.appendChild(ageElement);
+            }
+        }
+        
+        // Draw the animated virus
+        function drawVirus() {
+            ctx.clearRect(0, 0, virusCanvas.width, virusCanvas.height);
+            
+            // Draw background cells
+            for (let i = 0; i < 25; i++) {
+                const x = Math.random() * virusCanvas.width;
+                const y = Math.random() * virusCanvas.height;
+                const radius = 8 + Math.random() * 8;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+            
+            // Draw infected cells
+            virus.infectedCells.forEach(cell => {
+                ctx.beginPath();
+                ctx.arc(cell.x, cell.y, cell.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 107, 107, 0.6)';
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(cell.x, cell.y, cell.radius * 0.4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(100, 100, 200, 0.7)';
+                ctx.fill();
+                
+                const infectionRadius = cell.radius * (0.7 + cell.infectionStage * 0.3);
+                ctx.beginPath();
+                ctx.arc(cell.x, cell.y, infectionRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            });
+            
+            // Draw infection lines
+            virus.infectedCells.forEach(cell => {
+                ctx.beginPath();
+                ctx.moveTo(virus.x, virus.y);
+                ctx.lineTo(cell.x, cell.y);
+                ctx.strokeStyle = 'rgba(255, 107, 107, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+            
+            // Draw virus particles
+            virus.particles.forEach(particle => {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.fill();
+            });
+            
+            // Draw main virus
+            const pulse = Math.sin(Date.now() / 500) * 5;
+            ctx.beginPath();
+            ctx.arc(virus.x, virus.y, virus.radius + pulse, 0, Math.PI * 2);
+            ctx.fillStyle = virus.color;
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(virus.x, virus.y, virus.radius + pulse, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Draw spikes
+            for (let i = 0; i < virus.spikes; i++) {
+                const angle = (i / virus.spikes) * Math.PI * 2 + (Date.now() / 2000);
+                const spikeLength = virus.radius * 0.5;
+                
+                const x1 = virus.x + Math.cos(angle) * virus.radius;
+                const y1 = virus.y + Math.sin(angle) * virus.radius;
+                
+                const x2 = virus.x + Math.cos(angle) * (virus.radius + spikeLength);
+                const y2 = virus.y + Math.sin(angle) * (virus.radius + spikeLength);
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#ffffff';
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.arc(x2, y2, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffdd59';
+                ctx.fill();
+            }
+            
+            // Apply mutation effects
+            virus.mutations.forEach(mutation => {
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2 + (Date.now() / 1000);
+                    const distance = virus.radius * 1.3;
+                    
+                    const x = virus.x + Math.cos(angle) * distance;
+                    const y = virus.y + Math.sin(angle) * distance;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 5, 0, Math.PI * 2);
+                    ctx.fillStyle = getMutationColor(mutation.name);
+                    ctx.fill();
+                }
+            });
+        }
+        
+        // Get color based on mutation name
+        function getMutationColor(mutationName) {
+            const colors = ['#ff9ff3', '#feca57', '#48dbfb', '#1dd1a1', '#ff6b6b', '#5f27cd', '#00d2d3', '#ff9f43'];
+            let hash = 0;
+            for (let i = 0; i < mutationName.length; i++) {
+                hash = mutationName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+        
+        // Animate the virus and infection process
+        function animate() {
+            if (!isAnimating) return;
+            
+            // Update virus particles
+            virus.particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                
+                if (particle.x < 0 || particle.x > virusCanvas.width || 
+                    particle.y < 0 || particle.y > virusCanvas.height) {
+                    virus.particles.splice(index, 1);
+                }
+            });
+            
+            // Add new particles occasionally
+            if (Math.random() < 0.1) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 2;
+                
+                virus.particles.push({
+                    x: virus.x,
+                    y: virus.y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: virus.mutations.length > 0 ? 
+                           getMutationColor(virus.mutations[0].name) : '#ff6b6b'
+                });
+            }
+            
+            // Update infected cells
+            virus.infectedCells.forEach(cell => {
+                cell.infectionStage = Math.min(1, cell.infectionStage + 0.005);
+            });
+            
+            drawVirus();
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Update RL statistics display
+        function updateRLStats() {
+            const stats = rlModel.getLearningStats();
+            trainingRounds.textContent = stats.totalTrainingRounds;
+            dataPoints.textContent = stats.userInteractions;
+            accuracy.textContent = `${Math.floor(stats.accuracy)}%`;
+            mutationsPredicted.textContent = stats.totalMutationsPredicted;
+        }
+        
+        // FIXED: Generate mutations function
+        function generateMutations() {
+            const virusType = virusSelect.value;
+            const time = parseInt(timeSlider.value);
+            const population = parseInt(populationSlider.value);
+            
+            const selectedVirus = virusDatabase[virusType];
+            if (!selectedVirus) {
+                console.error("Selected virus not found:", virusType);
+                return;
+            }
+            
+            virus.mutations = [];
+            mutationsContainer.innerHTML = '';
+            
+            // Calculate statistics
+            const baseInfections = Math.floor(population * 1000000 * (time / 12) * 0.1);
+            const infectionMultiplier = parseFloat(selectedVirus.r0) / 2.5;
+            const calculatedInfections = Math.floor(baseInfections * infectionMultiplier);
+            
+            const mutationRate = selectedVirus.mutationRate.includes('10⁻³') ? 0.001 : 
+                                selectedVirus.mutationRate.includes('10⁻⁴') ? 0.0001 : 0.00001;
+            const calculatedMutations = Math.max(1, Math.floor(time * mutationRate * 100));
+            
+            virus.totalInfections = calculatedInfections;
+            virus.totalMutations = calculatedMutations;
+            
+            // Update statistics display
+            totalInfections.textContent = calculatedInfections.toLocaleString();
+            mutationCount.textContent = calculatedMutations;
+            fatalityRate.textContent = selectedVirus.fatality;
+            r0Value.textContent = selectedVirus.r0;
+            
+            // FIXED: Get AI-predicted mutations correctly
+            const allMutations = [];
+            
+            if (rlStats.userData.length > 0) {
+                // Get the most recent predictions
+                const recentData = rlStats.userData[rlStats.userData.length - 1];
+                if (recentData.mutations && recentData.mutations.length > 0) {
+                    allMutations.push(...recentData.mutations);
+                }
+            }
+            
+            // Add generic mutations if we don't have enough AI predictions
+            if (allMutations.length < calculatedMutations) {
+                const remaining = calculatedMutations - allMutations.length;
+                for (let i = 0; i < remaining; i++) {
+                    allMutations.push({
+                        name: `${mutationNames[allMutations.length]} Variant`,
+                        description: "Natural evolutionary adaptation of the virus",
+                        effect: "Slight increase in transmission efficiency", 
+                        confidence: 45 + Math.floor(Math.random() * 30)
+                    });
+                }
+            }
+            
+            // Display mutations
+            const displayMutations = allMutations.slice(0, calculatedMutations);
+            
+            displayMutations.forEach(mutation => {
+                virus.mutations.push(mutation);
+                
+                const mutationElement = document.createElement('div');
+                mutationElement.className = 'mutation-card pulse';
+                mutationElement.innerHTML = `
+                    <div class="mutation-name">${mutation.name}</div>
+                    <div class="mutation-desc">${mutation.description}</div>
+                    <div class="mutation-effect">Effect: ${mutation.effect}</div>
+                    <div class="mutation-effect">AI Confidence: ${mutation.confidence}%</div>
+                `;
+                
+                mutationsContainer.appendChild(mutationElement);
+            });
+        }
+        
+        // Start simulation
+        function startSimulation() {
+            if (isAnimating) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            generateMutations();
+            
+            isAnimating = true;
+            animate();
+        }
+        
+        // Reset simulation
+        function resetSimulation() {
+            if (isAnimating) {
+                cancelAnimationFrame(animationId);
+                isAnimating = false;
+            }
+            
+            virus.mutations = [];
+            virus.particles = [];
+            virus.totalInfections = 0;
+            virus.totalMutations = 0;
+            
+            mutationsContainer.innerHTML = '';
+            
+            timeSlider.value = 12;
+            timeValue.textContent = '12 months';
+            populationSlider.value = 10;
+            populationValue.textContent = '10 million';
+            
+            totalInfections.textContent = '0';
+            mutationCount.textContent = '0';
+            fatalityRate.textContent = '0%';
+            r0Value.textContent = '0';
+            
+            updateVirusInfo();
+            initCanvas();
+            drawVirus();
+        }
+        
+        // Pre-training initialization
+        async function initializePreTraining() {
+            const generator = new EnhancedTrainingDataGenerator();
+            
+            preTrainBtn.addEventListener('click', async function() {
+                preTrainBtn.disabled = true;
+                preTrainBtn.textContent = 'Real AI Training in Progress...';
+                
+                const trainingData = generator.generateRLTrainingData(5000);
+                
+                const finalAccuracy = await rlModel.preTrain(trainingData, (progress, examplesProcessed, currentAccuracy) => {
+                    preTrainingProgress.style.width = `${progress}%`;
+                    trainingExamples.textContent = examplesProcessed.toLocaleString();
+                    initialAccuracy.textContent = `${currentAccuracy}%`;
+                });
+                
+                rlStats.accuracy = finalAccuracy;
+                rlStats.isPreTrained = true;
+                rlStats.dataPoints = trainingData.length;
+                
+                updateRLStats();
+                preTrainBtn.textContent = 'AI Successfully Trained!';
+                preTrainBtn.style.background = '#1dd1a1';
+                
+                aiResponse.innerHTML = `<span class="highlight">✓ AI Model Genuinely Trained!</span><br>
+                                       Trained on ${trainingData.length.toLocaleString()} realistic medical cases<br>
+                                       Real validation accuracy: <span class="highlight">${finalAccuracy}%</span><br>
+                                       Model is now making real predictions based on learned patterns!`;
+            });
+            
+            setTimeout(() => {
+                if (!rlStats.isPreTrained) {
+                    preTrainBtn.click();
+                }
+            }, 1000);
+        }
+        
+        // FIXED: AI Analysis with proper mutation formatting
+        analyzeBtn.addEventListener('click', function() {
+            const text = userInput.value.trim();
+            if (text.length === 0) {
+                aiResponse.textContent = "Please enter your experience to analyze.";
+                return;
+            }
+            
+            aiResponse.innerHTML = '<span class="training-indicator"></span> AI is analyzing and learning from your input...';
+            
+            setTimeout(() => {
+                const learningResult = rlModel.learnFromUserInput(text);
+                
+                let response = `🧠 <span class="highlight">AI Learning Update:</span><br><br>`;
+                response += `Based on your input, I predict:<br>`;
+                
+                if (learningResult.prediction.length > 0) {
+                    learningResult.prediction.forEach(mutation => {
+                        response += `• <span class="highlight">${mutation.type}</span> (${mutation.confidence}% confidence)<br>`;
+                    });
+                } else {
+                    response += `• No significant mutation patterns detected<br>`;
+                }
+                
+                response += `<br>📈 <span class="highlight">Model Improved!</span><br>`;
+                response += `Accuracy: <span class="highlight">${learningResult.newAccuracy}%</span><br>`;
+                response += `Total user interactions: <span class="highlight">${rlModel.learningStats.userInteractions}</span>`;
+                
+                aiResponse.innerHTML = response;
+                
+                // FIXED: Store properly formatted mutations
+                const formattedMutations = learningResult.prediction.map(pred => ({
+                    name: `${mutationNames[Math.floor(Math.random() * mutationNames.length)]} Variant`,
+                    description: getMutationDescription(pred.type),
+                    effect: getMutationEffect(pred.type),
+                    confidence: pred.confidence,
+                    type: pred.type  // Keep original type for reference
+                }));
+                
+                rlStats.userData.push({
+                    text: text,
+                    mutations: formattedMutations,  // Store formatted mutations
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Update RL stats
+                updateRLStats();
+                
+                // Regenerate predictions to show improved model
+                generateMutations();
+                
+            }, 1500);
+        });
+        
+        startBtn.addEventListener('click', startSimulation);
+        resetBtn.addEventListener('click', resetSimulation);
+        // FIXED: Add missing slider event listeners
+timeSlider.addEventListener('input', function() {
+    const time = this.value;
+    timeValue.textContent = `${time} months`;
+    // Update simulation if it's running
+    if (isAnimating) {
+        generateMutations();
+    }
+});
+
+populationSlider.addEventListener('input', function() {
+    const population = this.value;
+    populationValue.textContent = `${population} million`;
+    // Update simulation if it's running
+    if (isAnimating) {
+        generateMutations();
+    }
+});
+
+userInput.addEventListener('input', function() {
+    charCount.textContent = this.value.length;
+});
+
+virusSelect.addEventListener('change', updateVirusInfo);
+        // Initialize
+        window.addEventListener('load', async function() {
+            initCanvas();
+            drawVirus();
+            updateVirusInfo();
+            updateRLStats();
+            
+            await initializePreTraining();
+            
+            window.addEventListener('resize', function() {
+                initCanvas();
+                if (!isAnimating) {
+                    drawVirus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

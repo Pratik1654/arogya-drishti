@@ -16,7 +16,7 @@ export default function Home() {
 
   // Initialize Gemini
   const genAI = new GoogleGenerativeAI(
-    "AIzaSyDvObnIvLH2aGQSZbY3p6YVh2VYsN9iybE"
+    "AIzaSyB5nuytogCw8xOGE9deL0AtkEYB8MsNbPk"
   ); // Replace with your actual API key
 
   useEffect(() => {
@@ -35,20 +35,22 @@ export default function Home() {
     setIsTyping(true);
 
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
       const systemInstruction = {
         role: "model",
         parts: [
           {
-            text: `You are an expert assistant specialized in recommending gadgets such as PCs, laptops, keyboards, and related accessories.
-            Your rules:
-            1. Only answer questions related to electronic gadgets, components, and accessories.
-            2. If asked about unrelated topics, respond: "I specialize only in electronics and tech accessories."
-            3. Provide accurate, up-to-date, and practical recommendations based on user input.
-            4. Use a professional but friendly tone to guide users in their buying decisions.
-            5. Your responses should be short and specific
-            6. Don't give responses in tabular format, your responses should be in points only`,
+            text: `You are an expert virologist for ArogyaDrishti, specializing in disease simulation, virus mutation analysis, and public health management.
+      Your rules:
+      1. Only answer questions related to healthcare, disease simulation, virus mutations, epidemiology, and public health.
+      2. If asked about unrelated topics, respond: "I specialize only in healthcare and disease simulation topics."
+      3. Provide accurate, evidence-based information about diseases, prevention, and health management.
+      4. Use a professional but compassionate tone to assist users with health-related queries.
+      5. Your responses should be clear, concise, and helpful.
+      6. Always emphasize consulting healthcare professionals for medical advice.
+      7. Always answer in paragraph and in less than 200 words.
+      8. Don't make the characters bold`,
           },
         ],
       };
@@ -98,7 +100,7 @@ export default function Home() {
           blur ? "blur-md" : "blur-0"
         }`}
         style={{
-          backgroundImage: `url('/goku.jpg')`,
+          backgroundImage: `url('/goku.png')`,
         }}
       >
         <div className="absolute inset-0 bg-black opacity-40"></div>
@@ -106,35 +108,22 @@ export default function Home() {
 
       {/* Content - modified to include chat messages */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center">
-        {/* Logo - unchanged */}
-        <Image
-          src="/logo.png"
-          alt="AI Assistant"
-          width={150}
-          height={150}
-          className={`transition-all duration-1000 ${
-            animate
-              ? "translate-y-4 opacity-80 scale-130"
-              : "-translate-y-28 opacity-0"
-          } animate-pulse`}
-        />
-
         {/* Heading - unchanged */}
         <h1
           className={`text-5xl font-extrabold mt-4 transition-all duration-1000 text-white drop-shadow-lg ${
             animate ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0"
           }`}
         >
-          Hi, I'm <span className="text-[#c21e8a]">Karm</span> Your AI Assistant
+          Hi, I'm <span className="text-blue-800">Karm</span> Your AI Assistant
         </h1>
 
         {/* Subtext - unchanged */}
         <p
-          className={`text-lg mt-2 text-gray-300 transition-all duration-1000 ${
+          className={`text-lg mt-2 text-white transition-all duration-1000 ${
             animate ? "translate-y-0 opacity-100" : "-translate-y-32 opacity-0"
           }`}
         >
-          How can I help you today?
+          Ask me anything about healthcare and I am here to help.
         </p>
 
         {/* Chat Messages Area - NEW */}
@@ -150,7 +139,7 @@ export default function Home() {
                 className={`inline-block p-3 rounded-lg ${
                   message.sender === "ai"
                     ? "bg-gray-700 text-white"
-                    : "bg-blue-600 text-white"
+                    : "bg-blue-300 text-black"
                 }`}
               >
                 {message.text}

@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pandemic Simulator</title>
+    <style>
+        :root {
+            --bg-color: #111827;
+            --text-color: #E5E7EB;
+            --primary-accent: #4F46E5;
+            --container-bg: #1F2937;
+            --border-color: #374151;
+            --healthy: white;
+            --infected: #EF4444;
+            --recovered: #60A5FA;
+            --dead: #9A4AB2;
+            --diagnosed: #860000;
+            --paramedic: #1D4ED8;
+            --paranoid: #AEF3B1;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            z-index: 50;
+            text-align: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .start-screen h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .parameter-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--container-bg);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: left;
+        }
+
+        .parameter-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .parameter-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .parameter-group h3 {
+            margin-bottom: 0.75rem;
+            color: var(--primary-accent);
+        }
+
+        .parameter {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            gap: 1rem;
+        }
+
+        .parameter label {
+            min-width: 200px;
+            text-align: right;
+        }
+
+        .parameter input[type="number"] {
+            width: 80px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .parameter input[type="range"] {
+            flex-grow: 1;
+            max-width: 300px;
+        }
+
+        .parameter-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .start-screen button {
+            padding: 0.75rem 2rem;
+            background-color: var(--primary-accent);
+            color: white;
+            font-weight: bold;
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.25);
+            transition: transform 0.2s, background-color 0.2s;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .start-screen button:hover {
+            background-color: #4338CA;
+            transform: scale(1.05);
+        }
+
+        .start-note {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #9CA3AF;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            height: 100vh;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        .stats-container {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--container-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem 1.5rem;
+            text-align: center;
+            font-size: 1.125rem;
+        }
+
+        @media (min-width: 768px) {
+            .stats-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-container {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        #infected-display { color: var(--infected); }
+        #recovered-display { color: var(--recovered); }
+        #dead-display { color: var(--dead); }
+        #paramedic-display { color: var(--paramedic); }
+        #diagnosed-display { color: var(--diagnosed); }
+
+        .canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            flex: 1;
+            min-height: 0;
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .controls-container {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: var(--container-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            font-size: 0.875rem;
+        }
+
+        .controls-container summary {
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .controls-grid {
+            margin-top: 0.75rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 0.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .controls-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .keybind-info ul, .boid-info ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .boid-info li {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-swatch {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .color-swatch.healthy { background-color: var(--healthy); }
+        .color-swatch.infected { background-color: var(--infected); }
+        .color-swatch.diagnosed { background-color: var(--diagnosed); }
+        .color-swatch.recovered { background-color: var(--recovered); }
+        .color-swatch.dead { background-color: var(--dead); }
+        .color-swatch.paramedic { background-color: var(--paramedic); }
+        .color-swatch.paranoid { background-color: var(--paranoid); }
+    </style>
+</head>
+<body>
+    <div id="start-screen" class="start-screen">
+        <h1>Pandemic Simulator</h1>
+        
+        <div class="parameter-container">
+            <h2>Simulation Parameters</h2>
+            
+            <div class="parameter-group">
+                <h3>Population Settings</h3>
+                <div class="parameter">
+                    <label for="population-size">Population Size:</label>
+                    <input type="number" id="population-size" min="100" max="5000" value="1000">
+                    <span class="parameter-value" id="population-value">1000</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="initial-infected">Initial Infected:</label>
+                    <input type="number" id="initial-infected" min="1" max="100" value="1">
+                    <span class="parameter-value" id="infected-value">1</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="paramedic-count">Initial Paramedics:</label>
+                    <input type="number" id="paramedic-count" min="0" max="50" value="0">
+                    <span class="parameter-value" id="paramedic-value">0</span>
+                </div>
+            </div>
+            
+            <div class="parameter-group">
+                <h3>Virus Properties</h3>
+                <div class="parameter">
+                    <label for="mutation-rate">Mutation Rate (x10⁻³):</label>
+                    <input type="range" id="mutation-rate" min="1" max="100" value="5">
+                    <span class="parameter-value" id="mutation-value">5</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="incubation-period">Incubation Period (days):</label>
+                    <input type="range" id="incubation-period" min="1" max="14" value="2">
+                    <span class="parameter-value" id="incubation-value">2</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="mortality-rate">Mortality Rate (%):</label>
+                    <input type="range" id="mortality-rate" min="1" max="50" value="14">
+                    <span class="parameter-value" id="mortality-value">14</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="transmission-rate">Transmission Rate:</label>
+                    <input type="range" id="transmission-rate" min="1" max="100" value="25">
+                    <span class="parameter-value" id="transmission-value">25</span>
+                </div>
+            </div>
+            
+            <div class="parameter-group">
+                <h3>Behavior Settings</h3>
+                <div class="parameter">
+                    <label for="social-distancing">Social Distancing:</label>
+                    <input type="range" id="social-distancing" min="0" max="100" value="0">
+                    <span class="parameter-value" id="distancing-value">0%</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="immunity-duration">Immunity Duration (months):</label>
+                    <input type="range" id="immunity-duration" min="1" max="24" value="12">
+                    <span class="parameter-value" id="immunity-value">12</span>
+                </div>
+                
+                <div class="parameter">
+                    <label for="travel-restrictions">Travel Restrictions:</label>
+                    <input type="range" id="travel-restrictions" min="0" max="100" value="0">
+                    <span class="parameter-value" id="travel-value">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <button id="start-button">Start Simulation</button>
+        <div class="start-note">Adjust parameters above to customize the simulation</div>
+    </div>
+
+    <div class="main-container">
+        <div id="stats-container" class="stats-container">
+            <div id="healthy-display">Healthy: 0</div>
+            <div id="infected-display">Infected: 0</div>
+            <div id="recovered-display">Recovered: 0</div>
+            <div id="dead-display">Dead: 0</div>
+            <div id="paramedic-display">Paramedics: 0</div>
+            <div id="diagnosed-display">Diagnosed: 0</div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="simulationCanvas"></canvas>
+        </div>
+
+        <div class="controls-container">
+             <details>
+                <summary>Show/Hide Controls & Info</summary>
+                <div class="controls-grid">
+                    <div class="keybind-info">
+                        <h3>Keybindings</h3>
+                        <ul>
+                            <li><strong>Click:</strong> Add healthy boid</li>
+                            <li><strong>P / ; :</strong> Inc/Dec separation</li>
+                            <li><strong>F:</strong> Add infected boid</li>
+                            <li><strong>Y:</strong> Add paramedic</li>
+                            <li><strong>. / / :</strong> Start/Stop music</li>
+                            <li><strong>Q / E :</strong> Show/Hide stats</li>
+                            <li><strong>R:</strong> Reintroduce infection</li>
+                            <li><strong>D:</strong> Show death stats</li>
+                        </ul>
+                    </div>
+                     <div class="boid-info">
+                        <h3>Boid Types</h3>
+                        <ul>
+                            <li><span class="color-swatch healthy"></span> Healthy</li>
+                            <li><span class="color-swatch infected"></span> Infected</li>
+                            <li><span class="color-swatch diagnosed"></span> Diagnosed</li>
+                            <li><span class="color-swatch recovered"></span> Recovered</li>
+                            <li><span class="color-swatch dead"></span> Dead</li>
+                            <li><span class="color-swatch paramedic"></span> Paramedic</li>
+                        </ul>
+                    </div>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        // Vector class
+        class Vector {
+            constructor(x = 0, y = 0) {
+                this.x = x;
+                this.y = y;
+            }
+
+            set(x, y) {
+                this.x = x;
+                this.y = y;
+            }
+
+            add(v) {
+                this.x += v.x;
+                this.y += v.y;
+            }
+
+            subtract(v) {
+                this.x -= v.x;
+                this.y -= v.y;
+            }
+
+            multiply(scalar) {
+                this.x *= scalar;
+                this.y *= scalar;
+            }
+
+            divide(scalar) {
+                if (scalar !== 0) {
+                    this.x /= scalar;
+                    this.y /= scalar;
+                }
+            }
+
+            getMagnitude() {
+                return Math.sqrt(this.x * this.x + this.y * this.y);
+            }
+
+            setMagnitude(mag) {
+                const currentMag = this.getMagnitude();
+                if (currentMag > 0) {
+                    this.multiply(mag / currentMag);
+                }
+                return this;
+            }
+
+            limit(max) {
+                const magSq = this.x * this.x + this.y * this.y;
+                if (magSq > max * max) {
+                    this.divide(Math.sqrt(magSq));
+                    this.multiply(max);
+                }
+            }
+
+            dir() {
+                return Math.atan2(this.y, this.x);
+            }
+
+            angle() {
+                return this.dir();
+            }
+
+            static distance(v1, v2) {
+                const dx = v1.x - v2.x;
+                const dy = v1.y - v2.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            static subtract(v1, v2) {
+                return new Vector(v1.x - v2.x, v1.y - v2.y);
+            }
+        }
+
+        // SoundManager
+        const SoundManager = {
+            isInitialized: false,
+            isMuted: false,
+            audioPlayers: {},
+            sirenPlayer: null,
+
+            init() {
+                if (this.isInitialized) return;
+                console.log("Audio system initialized (no actual files loaded)");
+                this.isInitialized = true;
+            },
+
+            toggleMusic(play) {
+                if (!this.isInitialized) this.init();
+                console.log(play ? "Music started" : "Music stopped");
+            },
+
+            playSound(soundType) {
+                if (!this.isInitialized || this.isMuted) return;
+                console.log(`Playing sound: ${soundType}`);
+            },
+
+            startSiren() {
+                if (this.isMuted || this.sirenPlayer) return;
+                console.log("Siren started");
+            },
+
+            stopSiren() {
+                if (this.sirenPlayer) {
+                    this.sirenPlayer = null;
+                    console.log("Siren stopped");
+                }
+            }
+        };
+
+        // Boid class
+        class Boid {
+            static size = 3;
+            static shape = new Path2D();
+            static {
+                this.shape.moveTo(0, -this.size * 2);
+                this.shape.lineTo(-this.size, this.size * 2);
+                this.shape.lineTo(this.size, this.size * 2);
+                this.shape.closePath();
+            }
+
+            static hasInfected = false;
+            static mortalityRate = 14;
+            static mutationRate = 5;
+            static transmissionRate = 25;
+
+            static COLORS = {
+                HEALTHY: 'white',
+                INFECTED: '#EF4444',
+                RECOVERED: '#60A5FA',
+                DEAD: '#9A4AB2',
+                DIAGNOSED: '#860000',
+                PARAMEDIC: '#1D4ED8',
+                PARANOID: '#AEF3B1'
+            };
+
+            static patient = null;
+            static lockedOn = false;
+
+            static maxForce = 0.2;
+            static maxSpeed = 1;
+            static separationMaxForce = 0.2;
+            static alignmentPerceptionRadius = 50;
+            static cohesionPerceptionRadius = 100;
+            static separationPerceptionRadius = 100;
+
+            constructor(x, y, canvasWidth, canvasHeight, options = {}) {
+                this.canvasWidth = canvasWidth;
+                this.canvasHeight = canvasHeight;
+                this.position = new Vector(x, y);
+                const angle = Math.random() * 2 * Math.PI;
+                const radius = Math.random() * 2 + 3;
+                this.velocity = new Vector(Math.cos(angle) * radius, Math.sin(angle) * radius);
+                this.acceleration = new Vector(0, 0);
+
+                this.dead = false;
+                this.diagnosed = false;
+                this.isParamedic = options.paramedic || false;
+                this.deathAngle = 0;
+
+                this.immunity = Math.random() * 10 + 5;
+                this.immunityCap = this.immunity;
+                this.initialImmunity = this.immunity;
+                
+                this.lifeSpan = (Math.random() * 300 + 500) * 2;
+                this.initialLifeSpan = this.lifeSpan;
+                this.isImmune = false;
+                this.immunityLife = 0;
+                this.healTime = this.initialImmunity;
+                
+                this.incubationPeriod = 0;
+                this.isIncubating = false;
+                this.virulence = 1.0;
+                this.infectiousness = 1.0;
+                this.diseaseSeverity = 1.0;
+
+                if (options.infected && !this.isParamedic) {
+                    this.healthStatus = Boid.COLORS.INFECTED;
+                    this.hasDisease = true;
+                    this.isIncubating = true;
+                    this.incubationPeriod = Math.floor(Math.random() * 4) + 1;
+                    Boid.hasInfected = true;
+                    
+                    this.initializeVirusProperties();
+                } else if (this.isParamedic) {
+                    this.healthStatus = Boid.COLORS.PARAMEDIC;
+                    this.hasDisease = false;
+                    this.immunity = 2000;
+                } else {
+                    this.healthStatus = Boid.COLORS.HEALTHY;
+                    this.hasDisease = false;
+                }
+            }
+
+            initializeVirusProperties() {
+                this.virulence = 1.0 + (Boid.mutationRate / 100);
+                this.infectiousness = 1.0 + (Boid.mutationRate / 200);
+                this.diseaseSeverity = 1.0 + (0.5 / Math.max(1, this.incubationPeriod));
+                
+                this.virulence = Math.max(0.5, Math.min(3.0, this.virulence));
+                this.infectiousness = Math.max(0.5, Math.min(2.0, this.infectiousness));
+                this.diseaseSeverity = Math.max(0.8, Math.min(2.0, this.diseaseSeverity));
+            }
+
+            updateState(simulation) {
+                if (this.dead) return;
+
+                if (this.isIncubating) {
+                    this.incubationPeriod--;
+                    if (this.incubationPeriod <= 0) {
+                        this.isIncubating = false;
+                        if (Math.random() < 0.7) {
+                            this.diagnosed = true;
+                            this.healthStatus = Boid.COLORS.DIAGNOSED;
+                            SoundManager.playSound('diagnosis');
+                        }
+                    }
+                }
+                
+                if (this.hasDisease && Math.random() < 0.001) {
+                    this.applyVirusMutations();
+                }
+                
+                if (this.hasDisease && !this.isImmune) {
+                    const progressionRate = this.diseaseSeverity * this.virulence;
+                    this.lifeSpan -= progressionRate;
+                    
+                    if (this.lifeSpan <= 0) {
+                        const effectiveMortality = Boid.mortalityRate * this.virulence;
+                        if (Math.random() * 100 < effectiveMortality) {
+                            this.die(simulation);
+                        } else {
+                            this.recover(simulation);
+                        }
+                    }
+                } else if (this.isImmune) {
+                    this.immunityLife--;
+                    if (this.immunityLife < 0) {
+                        this.loseImmunity();
+                    }
+                }
+            }
+
+            applyVirusMutations() {
+                const mutationEffect = (Math.random() - 0.5) * (Boid.mutationRate / 50);
+                this.virulence += mutationEffect;
+                this.virulence = Math.max(0.5, Math.min(3.0, this.virulence));
+                
+                const infectiousnessEffect = (Math.random() - 0.5) * (Boid.mutationRate / 100);
+                this.infectiousness += infectiousnessEffect;
+                this.infectiousness = Math.max(0.5, Math.min(2.0, this.infectiousness));
+                
+                this.diseaseSeverity = 1.0 + (0.5 / Math.max(1, this.incubationPeriod)) * this.virulence;
+            }
+
+            die(simulation) {
+                this.dead = true;
+                simulation.stats.deathCount++;
+                this.healthStatus = Boid.COLORS.DEAD;
+                SoundManager.playSound('death');
+                
+                if (simulation.stats.deathCount % 100 === 0) {
+                    SoundManager.playSound('deathmilestone');
+                }
+                
+                if (this.diagnosed && Boid.patient === this) {
+                    Boid.patient = null;
+                    Boid.lockedOn = false;
+                    SoundManager.stopSiren();
+                }
+            }
+
+            recover(simulation) {
+                this.hasDisease = false;
+                this.isImmune = true;
+                
+                if (this.diagnosed) { 
+                    Boid.patient = null; 
+                    Boid.lockedOn = false; 
+                    SoundManager.stopSiren(); 
+                }
+                
+                SoundManager.playSound('recovery');
+                this.healthStatus = Boid.COLORS.RECOVERED;
+                this.immunity = this.immunityCap * (Math.random() * 50 + 100);
+                this.immunityCap = this.immunity;
+                
+                const immunityDurationFactor = 6 * (Math.random() * 0.8 + 0.5) * (1 + this.virulence * 0.2);
+                this.immunityLife = this.initialLifeSpan * immunityDurationFactor;
+                
+                this.diagnosed = false;
+                this.isIncubating = false;
+            }
+
+            loseImmunity() {
+                this.isImmune = false;
+                this.healthStatus = Boid.COLORS.HEALTHY;
+                const residualProtection = 0.3 + Math.random() * 0.3;
+                this.immunity = this.initialImmunity * (Math.random() * 0.8 + 0.4) * residualProtection;
+                this.immunityCap = this.immunity;
+                SoundManager.playSound('immunitylost');
+            }
+
+            flock(boids, simulation) {
+                this.updateState(simulation);
+                if (this.dead) return;
+
+                this.acceleration.set(0, 0);
+                const alignment = this.align(boids, simulation);
+                const cohesion = this.cohesion(boids);
+                const separation = this.separation(boids);
+
+                if (!(this.isParamedic && Boid.lockedOn)) this.acceleration.add(alignment);
+                this.acceleration.add(separation);
+                this.acceleration.add(cohesion);
+            }
+
+            align(flock, simulation) {
+                const steering = new Vector(0, 0);
+                let total = 0;
+                
+                for (const other of flock) {
+                    if (other.dead) continue;
+                    
+                    if (this.isParamedic && other.diagnosed && !Boid.patient && !other.dead) {
+                        Boid.patient = other;
+                        Boid.lockedOn = true;
+                        SoundManager.startSiren();
+                        break;
+                    }
+                    
+                    const d = Vector.distance(this.position, other.position);
+                    if (other !== this && d < Boid.alignmentPerceptionRadius) {
+                        steering.add(other.velocity);
+                        total++;
+                        this.handleInteractions(other, d, simulation);
+                    }
+                }
+
+                if (total > 0) {
+                    steering.divide(total);
+                    steering.setMagnitude(Boid.maxSpeed);
+                    steering.subtract(this.velocity);
+                    steering.limit(Boid.maxForce);
+                }
+                return steering;
+            }
+            
+            handleInteractions(other, dist, simulation) {
+                if (other.dead) return;
+                
+                if (this.hasDisease && !this.isIncubating && !other.hasDisease && !other.isImmune && !other.dead) {
+                    const baseTransmission = Boid.transmissionRate / 100;
+                    const distanceFactor = 1 / (dist * 0.1);
+                    const infectiousnessFactor = this.infectiousness;
+                    const stageFactor = this.isIncubating ? 0.3 : 1.0;
+                    const immunityProtection = Math.max(0.1, 1 - (other.immunity / 100));
+                    
+                    const transmissionProbability = baseTransmission * distanceFactor * infectiousnessFactor * stageFactor * immunityProtection * 0.1;
+                    
+                    if (Math.random() < transmissionProbability) {
+                        if (other.immunity <= 0) {
+                            this.infectOther(other);
+                            SoundManager.playSound('newpatient');
+                        } else {
+                            other.immunity -= (1 / dist) * 2 * this.virulence;
+                            
+                            const diagnosisChance = (Boid.transmissionRate / 40000) * (this.diagnosed ? 2 : 1);
+                            if(Math.random() < diagnosisChance && !this.diagnosed && !this.dead) {
+                                this.diagnosed = true;
+                                this.healthStatus = Boid.COLORS.DIAGNOSED;
+                                SoundManager.playSound('diagnosis');
+                            }
+                        }
+                    }
+                } else if (other.isParamedic && this.diagnosed && dist < 5 && !this.dead) {
+                    this.healTime--;
+                    if (this.healTime <= 0) {
+                        this.recover(simulation);
+                        SoundManager.playSound('treatment');
+                    }
+                }
+            }
+
+            infectOther(other) {
+                other.healthStatus = Boid.COLORS.INFECTED;
+                other.hasDisease = true;
+                other.isIncubating = true;
+                
+                const baseIncubation = Math.floor(Math.random() * 4) + 1;
+                const mutationEffect = (Math.random() - 0.5) * (Boid.mutationRate / 25);
+                other.incubationPeriod = Math.max(1, Math.min(7, Math.floor(baseIncubation + mutationEffect)));
+                
+                const virulenceInheritance = 0.8 + Math.random() * 0.4;
+                other.virulence = this.virulence * virulenceInheritance + (Math.random() - 0.5) * (Boid.mutationRate / 100);
+                
+                const infectiousnessInheritance = 0.8 + Math.random() * 0.4;
+                other.infectiousness = this.infectiousness * infectiousnessInheritance + (Math.random() - 0.5) * (Boid.mutationRate / 150);
+                
+                other.virulence = Math.max(0.5, Math.min(3.0, other.virulence));
+                other.infectiousness = Math.max(0.5, Math.min(2.0, other.infectiousness));
+                other.diseaseSeverity = 1.0 + (0.5 / Math.max(1, other.incubationPeriod)) * other.virulence;
+            }
+
+            cohesion(flock) {
+                const steering = new Vector(0, 0);
+                let total = 0;
+                
+                if (this.isParamedic && Boid.lockedOn && Boid.patient && !Boid.patient.dead) {
+                    steering.add(Boid.patient.position);
+                    steering.subtract(this.position);
+                    steering.setMagnitude(Boid.maxSpeed * 1.5);
+                    steering.subtract(this.velocity);
+                    steering.limit(Boid.maxForce * 3);
+                    return steering;
+                }
+                
+                if (!this.isParamedic || !Boid.lockedOn) {
+                    for (const other of flock) {
+                        if (other.dead) continue;
+                        
+                        const d = Vector.distance(this.position, other.position);
+                        if (other !== this && d < Boid.cohesionPerceptionRadius) {
+                            steering.add(other.position);
+                            total++;
+                        }
+                    }
+                }
+                
+                if (total > 0) {
+                    steering.divide(total);
+                    steering.subtract(this.position);
+                    steering.setMagnitude(Boid.maxSpeed);
+                    steering.subtract(this.velocity);
+                    steering.limit(Boid.maxForce);
+                }
+                return steering;
+            }
+
+            separation(flock) {
+                const steering = new Vector(0, 0);
+                let total = 0;
+                for (const other of flock) {
+                    if (other.dead) continue;
+                    
+                    const d = Vector.distance(this.position, other.position);
+                    if (other !== this && d < Boid.separationPerceptionRadius) {
+                        const diff = Vector.subtract(this.position, other.position);
+                        if (d > 0) diff.divide(d * d);
+                        
+                        if ((other.dead || other.diagnosed) && !this.isParamedic) {
+                            diff.multiply(20);
+                        }
+                        
+                        if (other.diagnosed && this.isParamedic) {
+                            diff.multiply(0.1);
+                        }
+                        
+                        steering.add(diff);
+                        total++;
+                    }
+                }
+                if (total > 0) {
+                    steering.divide(total);
+                    steering.setMagnitude(Boid.maxSpeed);
+                    steering.subtract(this.velocity);
+                    steering.limit(Boid.separationMaxForce);
+                }
+                return steering;
+            }
+
+            update() {
+                if (this.dead) return;
+
+                this.position.add(this.velocity);
+                this.velocity.add(this.acceleration);
+                this.velocity.limit(Boid.maxSpeed * (this.isParamedic ? 1.2 : 1.0));
+                
+                if (this.dead && this.deathAngle === 0) {
+                    this.deathAngle = this.velocity.dir() + Math.PI / 2;
+                }
+                
+                if (this.isParamedic && Boid.lockedOn && Boid.patient) {
+                    if (Boid.patient.dead || !Boid.patient.diagnosed) {
+                        SoundManager.stopSiren();
+                        Boid.lockedOn = false;
+                        Boid.patient = null;
+                    }
+                }
+            }
+
+            edges() {
+                if (this.dead) return;
+                
+                if (this.position.x > this.canvasWidth) this.position.x = 0;
+                else if (this.position.x < 0) this.position.x = this.canvasWidth;
+                if (this.position.y > this.canvasHeight) this.position.y = 0;
+                else if (this.position.y < 0) this.position.y = this.canvasHeight;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.position.x, this.position.y);
+                
+                if (this.dead) {
+                    ctx.rotate(this.deathAngle);
+                    ctx.fillStyle = this.healthStatus;
+                    ctx.fill(Boid.shape);
+                } else {
+                    ctx.rotate(this.velocity.dir() + Math.PI / 2);
+                    ctx.fillStyle = this.healthStatus;
+                    ctx.fill(Boid.shape);
+                    
+                    if (this.diagnosed) {
+                        ctx.fillStyle = Boid.COLORS.DIAGNOSED;
+                        ctx.fillRect(-Boid.size, -Boid.size * 3, Boid.size * 2, Boid.size);
+                    }
+                    
+                    if (this.isParamedic) {
+                        ctx.strokeStyle = 'white';
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(-Boid.size, 0);
+                        ctx.lineTo(Boid.size, 0);
+                        ctx.moveTo(0, -Boid.size);
+                        ctx.lineTo(0, Boid.size);
+                        ctx.stroke();
+                    }
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // SIRDModel class
+        class SIRDModel {
+            constructor(parameters) {
+                this.parameters = parameters;
+                this.S = 1.0;
+                this.I = 0.0;
+                this.R = 0.0;
+                this.D = 0.0;
+                this.beta = parameters.transmissionRate / 100;
+                this.gamma = 0.1;
+                this.mu = parameters.mortalityRate / 1000;
+                this.R0 = this.beta / (this.gamma + this.mu);
+            }
+
+            update(dt, totalPopulation, stats) {
+                const infectionRate = this.beta * this.S * this.I;
+                const recoveryRate = this.gamma * this.I;
+                const deathRate = this.mu * this.I;
+
+                this.S += (-infectionRate) * dt;
+                this.I += (infectionRate - recoveryRate - deathRate) * dt;
+                this.R += recoveryRate * dt;
+                this.D += deathRate * dt;
+
+                const total = this.S + this.I + this.R + this.D;
+                if (total > 0) {
+                    this.S /= total;
+                    this.I /= total;
+                    this.R /= total;
+                    this.D /= total;
+                }
+
+                this.R0 = this.beta / (this.gamma + this.mu);
+
+                return {
+                    S: this.S,
+                    I: this.I,
+                    R: this.R,
+                    D: this.D,
+                    beta: this.beta,
+                    gamma: this.gamma,
+                    mu: this.mu,
+                    R0: this.R0
+                };
+            }
+        }
+
+        // SimulationParameters class
+        class SimulationParameters {
+            constructor() {
+                this.populationSize = 1000;
+                this.initialInfected = 1;
+                this.paramedicCount = 0;
+                this.mutationRate = 5;
+                this.incubationPeriod = 2;
+                this.mortalityRate = 14;
+                this.transmissionRate = 25;
+                this.socialDistancing = 0;
+                this.immunityDuration = 12;
+                this.travelRestrictions = 0;
+            }
+
+            updateFromUI() {
+                this.populationSize = parseInt(document.getElementById('population-size').value);
+                this.initialInfected = parseInt(document.getElementById('initial-infected').value);
+                this.paramedicCount = parseInt(document.getElementById('paramedic-count').value);
+                this.mutationRate = parseInt(document.getElementById('mutation-rate').value);
+                this.incubationPeriod = parseInt(document.getElementById('incubation-period').value);
+                this.mortalityRate = parseInt(document.getElementById('mortality-rate').value);
+                this.transmissionRate = parseInt(document.getElementById('transmission-rate').value);
+                this.socialDistancing = parseInt(document.getElementById('social-distancing').value);
+                this.immunityDuration = parseInt(document.getElementById('immunity-duration').value);
+                this.travelRestrictions = parseInt(document.getElementById('travel-restrictions').value);
+            }
+        }
+
+        // Simulation class
+        class Simulation {
+            constructor(canvas, parameters) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.parameters = parameters;
+                this.boids = [];
+                this.stats = {
+                    healthyCount: 0,
+                    infectedCount: 0,
+                    recoveredCount: 0,
+                    deathCount: 0,
+                    paramedicCount: 0,
+                    diagnosedCount: 0
+                };
+                this.sirdModel = new SIRDModel(parameters);
+                this.lastUpdateTime = 0;
+                this.animationFrameId = null;
+                this.isRunning = false;
+                this.showStats = true;
+                this.showDeathStats = false;
+                this.separationFactor = 1.0;
+                
+                this.setupEventListeners();
+                this.resizeCanvas();
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                this.canvas.addEventListener('click', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.addBoid(x, y);
+                });
+                
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'p': case 'P': this.separationFactor = Math.min(2.0, this.separationFactor + 0.1); break;
+                        case ';': this.separationFactor = Math.max(0.1, this.separationFactor - 0.1); break;
+                        case 'f': case 'F': this.addInfectedBoid(); break;
+                        case 'y': case 'Y': this.addParamedic(); break;
+                        case '.': SoundManager.toggleMusic(true); break;
+                        case '/': SoundManager.toggleMusic(false); break;
+                        case 'q': case 'Q': this.showStats = !this.showStats; break;
+                        case 'e': case 'E': this.showStats = !this.showStats; break;
+                        case 'r': case 'R': this.reintroduceInfection(); break;
+                        case 'd': case 'D': this.showDeathStats = !this.showDeathStats; break;
+                    }
+                });
+            }
+
+            resizeCanvas() {
+                const container = this.canvas.parentElement;
+                this.canvas.width = container.clientWidth;
+                this.canvas.height = container.clientHeight;
+                this.draw();
+            }
+
+            initialize() {
+                this.boids = [];
+                this.stats = {
+                    healthyCount: 0,
+                    infectedCount: 0,
+                    recoveredCount: 0,
+                    deathCount: 0,
+                    paramedicCount: 0,
+                    diagnosedCount: 0
+                };
+                
+                Boid.hasInfected = false;
+                Boid.mortalityRate = this.parameters.mortalityRate;
+                Boid.mutationRate = this.parameters.mutationRate;
+                Boid.transmissionRate = this.parameters.transmissionRate;
+                
+                for (let i = 0; i < this.parameters.populationSize; i++) {
+                    this.addBoid();
+                }
+                
+                for (let i = 0; i < this.parameters.initialInfected; i++) {
+                    this.addInfectedBoid();
+                }
+                
+                for (let i = 0; i < this.parameters.paramedicCount; i++) {
+                    this.addParamedic();
+                }
+                
+                this.isRunning = true;
+                this.lastUpdateTime = performance.now();
+                this.animate();
+            }
+
+            addBoid(x = null, y = null) {
+                const posX = x !== null ? x : Math.random() * this.canvas.width;
+                const posY = y !== null ? y : Math.random() * this.canvas.height;
+                const boid = new Boid(posX, posY, this.canvas.width, this.canvas.height);
+                this.boids.push(boid);
+                this.stats.healthyCount++;
+            }
+
+            addInfectedBoid() {
+                const boid = new Boid(
+                    Math.random() * this.canvas.width,
+                    Math.random() * this.canvas.height,
+                    this.canvas.width,
+                    this.canvas.height,
+                    { infected: true }
+                );
+                this.boids.push(boid);
+                this.stats.healthyCount--;
+                this.stats.infectedCount++;
+            }
+
+            addParamedic() {
+                const boid = new Boid(
+                    Math.random() * this.canvas.width,
+                    Math.random() * this.canvas.height,
+                    this.canvas.width,
+                    this.canvas.height,
+                    { paramedic: true }
+                );
+                this.boids.push(boid);
+                this.stats.paramedicCount++;
+            }
+
+            reintroduceInfection() {
+                if (this.stats.infectedCount === 0) {
+                    this.addInfectedBoid();
+                }
+            }
+
+            updateStats() {
+                this.stats.healthyCount = 0;
+                this.stats.infectedCount = 0;
+                this.stats.recoveredCount = 0;
+                this.stats.diagnosedCount = 0;
+                this.stats.paramedicCount = 0;
+                
+                for (const boid of this.boids) {
+                    if (boid.dead) continue;
+                    
+                    if (boid.isParamedic) {
+                        this.stats.paramedicCount++;
+                    } else if (boid.hasDisease) {
+                        this.stats.infectedCount++;
+                        if (boid.diagnosed) this.stats.diagnosedCount++;
+                    } else if (boid.isImmune) {
+                        this.stats.recoveredCount++;
+                    } else {
+                        this.stats.healthyCount++;
+                    }
+                }
+                
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                document.getElementById('healthy-display').textContent = `Healthy: ${this.stats.healthyCount}`;
+                document.getElementById('infected-display').textContent = `Infected: ${this.stats.infectedCount}`;
+                document.getElementById('recovered-display').textContent = `Recovered: ${this.stats.recoveredCount}`;
+                document.getElementById('dead-display').textContent = `Dead: ${this.stats.deathCount}`;
+                document.getElementById('paramedic-display').textContent = `Paramedics: ${this.stats.paramedicCount}`;
+                document.getElementById('diagnosed-display').textContent = `Diagnosed: ${this.stats.diagnosedCount}`;
+            }
+
+            update(deltaTime) {
+                const dt = Math.min(deltaTime / 16, 2);
+                
+                Boid.separationMaxForce = 0.2 * this.separationFactor;
+                
+                for (const boid of this.boids) {
+                    boid.flock(this.boids, this);
+                    boid.update();
+                    boid.edges();
+                }
+                
+                this.updateStats();
+                
+                const sirdData = this.sirdModel.update(
+                    dt,
+                    this.parameters.populationSize,
+                    this.stats
+                );
+            }
+
+            draw() {
+                this.ctx.fillStyle = 'black';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                for (const boid of this.boids) {
+                    boid.draw(this.ctx);
+                }
+                
+                if (this.showStats) {
+                    this.drawStats();
+                }
+                
+                if (this.showDeathStats) {
+                    this.drawDeathStats();
+                }
+            }
+
+            drawStats() {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(10, 10, 200, 100);
+                
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '12px monospace';
+                this.ctx.fillText(`Healthy: ${this.stats.healthyCount}`, 20, 30);
+                this.ctx.fillText(`Infected: ${this.stats.infectedCount}`, 20, 50);
+                this.ctx.fillText(`Recovered: ${this.stats.recoveredCount}`, 20, 70);
+                this.ctx.fillText(`Dead: ${this.stats.deathCount}`, 20, 90);
+                this.ctx.fillText(`Paramedics: ${this.stats.paramedicCount}`, 20, 110);
+            }
+
+            drawDeathStats() {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                this.ctx.fillRect(this.canvas.width - 210, 10, 200, 80);
+                
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = '12px monospace';
+                this.ctx.fillText(`Mortality Rate: ${this.parameters.mortalityRate}%`, this.canvas.width - 200, 30);
+                this.ctx.fillText(`Transmission Rate: ${this.parameters.transmissionRate}%`, this.canvas.width - 200, 50);
+                this.ctx.fillText(`Mutation Rate: ${this.parameters.mutationRate}`, this.canvas.width - 200, 70);
+            }
+
+            animate(currentTime = 0) {
+                if (!this.isRunning) return;
+                
+                const deltaTime = currentTime - this.lastUpdateTime;
+                this.lastUpdateTime = currentTime;
+                
+                this.update(deltaTime);
+                this.draw();
+                
+                this.animationFrameId = requestAnimationFrame((time) => this.animate(time));
+            }
+
+            stop() {
+                this.isRunning = false;
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                }
+            }
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('simulationCanvas');
+            const startScreen = document.getElementById('start-screen');
+            const startButton = document.getElementById('start-button');
+            const parameters = new SimulationParameters();
+            
+            let simulation = null;
+            
+            // Update parameter values when sliders change
+            const sliders = document.querySelectorAll('input[type="range"]');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', () => {
+                    const valueDisplay = document.getElementById(slider.id + '-value');
+                    if (valueDisplay) {
+                        if (slider.id === 'social-distancing' || slider.id === 'travel-restrictions') {
+                            valueDisplay.textContent = slider.value + '%';
+                        } else {
+                            valueDisplay.textContent = slider.value;
+                        }
+                    }
+                });
+            });
+
+            // Update parameter values when number inputs change
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    const valueDisplay = document.getElementById(input.id + '-value');
+                    if (valueDisplay) {
+                        valueDisplay.textContent = input.value;
+                    }
+                });
+            });
+            
+            // Start simulation
+            startButton.addEventListener('click', () => {
+                parameters.updateFromUI();
+                
+                startScreen.style.display = 'none';
+                
+                SoundManager.init();
+                
+                if (simulation) {
+                    simulation.stop();
+                }
+                
+                simulation = new Simulation(canvas, parameters);
+                simulation.initialize();
+            });
+        });
+    </script>
+</body>
+</html>
