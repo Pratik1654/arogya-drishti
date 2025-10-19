@@ -181,9 +181,6 @@ The application can be deployed on any platform supporting Next.js:
 4. Push to the branch
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🆘 Support
 
